@@ -623,7 +623,9 @@ sign_domain() {
   cat "${crt_path}" > "${CERTDIR}/${domain}/fullchain-${timestamp}.pem"
   http_request get "$(openssl x509 -in "${CERTDIR}/${domain}/cert-${timestamp}.pem" -noout -text | grep 'CA Issuers - URI:' | cut -d':' -f2-)" > "${CERTDIR}/${domain}/chain-${timestamp}.pem"
   if ! grep -q "BEGIN CERTIFICATE" "${CERTDIR}/${domain}/chain-${timestamp}.pem"; then
-    openssl x509 -in "${CERTDIR}/${domain}/chain-${timestamp}.pem" -inform DER -out "${CERTDIR}/${domain}/chain-${timestamp}.pem" -outform PEM
+    openssl x509 -in "${CERTDIR}/${domain}/chain-${timestamp}.pem" -inform DER -out "${CERTDIR}/${domain}/chain-temp-${timestamp}.pem" -outform PEM
+    rm "${CERTDIR}/${domain}/chain-${timestamp}.pem"
+    mv "${CERTDIR}/${domain}/chain-temp-${timestamp}.pem" "${CERTDIR}/${domain}/chain-${timestamp}.pem"
   fi
   cat "${CERTDIR}/${domain}/chain-${timestamp}.pem" >> "${CERTDIR}/${domain}/fullchain-${timestamp}.pem"
 
